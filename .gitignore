@@ -1,1 +1,8 @@
-.env
+out/*
+!out/.gitkeep
+
+targets/*
+!targets/.gitkeep
+
+env/*
+!.env.default
