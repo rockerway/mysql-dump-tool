@@ -1,0 +1,94 @@
+#!/bin/bash
+
+function execDump() {
+  remoteHost=$1
+  remotePort=$2
+  remoteUser=$3
+  remotePassword=$4
+  dbName=$5
+  table=$6
+  fields=$7
+  conditions=$8
+
+  echo "SELECT $fields FROM $table WHERE $conditions"
+  mysqldump --single-transaction --opt -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword --no-data $dbName $table > /out/$dbName.$table.sql
+  mysql -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword -D $dbName -e "SELECT $fields FROM $table WHERE $conditions" | sed "s/\"/\"\"/g;s/'/\'/;s/\t/\",\"/g;s/^/\"/;s/$/\"/;s/\n//g" > /out/$dbName.$table.csv
+}
+
+function dump() {
+  dbName=$1
+  table=$2
+  fields=$3
+  conditions=$4
+
+  echo "Dump '$dbName'.'$table' Start..."
+
+  host=$HOST
+  port=$PORT
+  user=$USER
+  password=$PASSWORD
+  execDump $host $port $user $password $dbName $table "$fields" "$conditions"
+
+  echo "Dump '$dbName'.'$table' End"
+  echo
+}
+
+function getLength() {
+  echo "$1" | jq ".$2 | length"
+}
+
+function indexes() {
+  echo $(seq 0 $(($1-1)))
+}
+
+function get() {
+  echo "$1" | jq ".$3[$2]"
+}
+
+function getDBName() {
+  echo "$1" | jq '.name' | sed -e "s/[\"]//g"
+}
+
+function getTable() {
+  echo $(get "$1" $2 'tables')
+}
+
+function getTableName() {
+  echo "$1" | jq '.name' | sed -e "s/[\"]//g"
+}
+
+function getTableFields() {
+  echo "$1" | jq '.fields'
+}
+
+function getTableConditions() {
+  echo "$1" | jq '.conditions'
+}
+
+dbs=$(cat /targets/$TARGET_FILE)
+
+dbCount=$(getLength "$dbs")
+for dbIndex in $(indexes $dbCount); do
+  db=$(get "$dbs" $dbIndex) 
+
+  dbName=$(getDBName "$db")
+
+  tableCount=$(getLength "$db" 'tables')
+  for tableIndex in $(indexes $tableCount); do
+    table=$(getTable "$db" $tableIndex)
+
+    tableName=$(getTableName "$table")
+    fields=$(getTableFields "$table")
+    fields=${fields:1:-1}
+    if [ "$fields" = "" ] || [ "$fields" = "ul" ]; then
+      fields="*"
+    fi
+    conditions=$(getTableConditions "$table")
+    conditions=${conditions:1:-1}
+    if [ "$conditions" = "" ] || [ "$conditions" = "ul" ]; then
+      conditions="1"
+    fi
+
+    dump $dbName $tableName "$fields" "$conditions"
+  done
+done
