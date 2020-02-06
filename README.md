@@ -6,7 +6,7 @@ using mysql-client in docker container to dump special table schema and data wit
 
 ```
 .
-├── env
+├── configs
 │   └── .env.default    # env example
 ├── out                 # dump result
 ├── targets             # special DB, table, fields, conditions config
@@ -16,8 +16,16 @@ using mysql-client in docker container to dump special table schema and data wit
 └── Makefile            # script entry point
 ```
 
-## Exec
+## Run
+
+> Before run the script, you need create `env file` in configs folder and `target file` in targets folder to define MySQL connect information and what DB and tables data you want.
+
+| field | description |
+| --- | --- |
+| env_file_name | env file name in config folder |
+| target_file_name | target file name in targets folder |
+| docker_network_name __(optional)__ | docker network name, if you need operate container in exist network, you can set it. |
 
 ```shell
-make run <env_file_name> <target_file_name>
+make run <env_file_name> <target_file_name> [docker_network_name]
 ```
