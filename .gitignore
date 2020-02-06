@@ -4,5 +4,5 @@ out/*
 targets/*
 !targets/.gitkeep
 
-env/*
+configs/*
 !.env.default
