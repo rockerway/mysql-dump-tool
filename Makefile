@@ -7,8 +7,8 @@ ifeq (run,$(firstword $(MAKECMDGOALS)))
 endif
 
 run:
-	# make build
-	docker run --rm -it --env-file=env/$(word 1,$(RUN_ARGS)) -e TARGET_FILE=$(word 2,$(RUN_ARGS)) -v ${PWD}/targets:/targets -v ${PWD}/out:/out $(NETWORK_CONFIG) mysql-dump-tool
+	make build
+	docker run --rm -it --env-file=configs/$(word 1,$(RUN_ARGS)) -e TARGET_FILE=$(word 2,$(RUN_ARGS)) -v ${PWD}/targets:/targets -v ${PWD}/out:/out $(NETWORK_CONFIG) mysql-dump-tool
 
 build:
 	docker build -t mysql-dump-tool .

@@ -12,7 +12,7 @@ function execDump() {
 
   echo "SELECT $fields FROM $table WHERE $conditions"
   mysqldump --single-transaction --opt -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword --no-data $dbName $table > /out/$dbName.$table.sql
-  mysql -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword -D $dbName -e "SELECT $fields FROM $table WHERE $conditions" | sed "s/\"/\"\"/g;s/'/\'/;s/\t/\",\"/g;s/^/\"/;s/$/\"/;s/\n//g" > /out/$dbName.$table.csv
+  mysqldump --single-transaction --opt -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword --no-create-info $dbName $table --where "$conditions" > /out/$dbName.$table.data.sql
 }
 
 function dump() {
