@@ -15,7 +15,7 @@ function execDump() {
   if [ "$FORMAT" = "sql" ]; then
     mysqldump --single-transaction --opt -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword --no-create-info $dbName $table --where "$conditions" > /out/$dbName.$table.data.sql
   elif [ "$FORMAT" = "csv" ]; then
-    mysql -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword $dbName -e "SELECT $fields FROM \`$table\` WHERE $conditions" > /out/$dbName.$table.csv
+    mysql -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword $dbName -e "SELECT $fields FROM \`$table\` WHERE $conditions" | sed "s/^/\"/;s/$/\"/;s/\t/\"\t\"/g;s/\n//g" > /out/$dbName.$table.csv
   elif [ "$FORMAT" = "json" ]; then
     mysql -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword $dbName -e "SELECT $fields FROM \`$table\` WHERE $conditions" > /out/$dbName.$table.data.sql
   else
