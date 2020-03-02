@@ -12,7 +12,15 @@ function execDump() {
 
   echo "SELECT $fields FROM $table WHERE $conditions"
   mysqldump --single-transaction --opt -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword --no-data $dbName $table > /out/$dbName.$table.sql
-  mysqldump --single-transaction --opt -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword --no-create-info $dbName $table --where "$conditions" > /out/$dbName.$table.data.sql
+  if [ "$FORMAT" = "sql" ]; then
+    mysqldump --single-transaction --opt -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword --no-create-info $dbName $table --where "$conditions" > /out/$dbName.$table.data.sql
+  elif [ "$FORMAT" = "csv" ]; then
+    mysql -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword $dbName -e "SELECT $fields FROM \`$table\` WHERE $conditions" > /out/$dbName.$table.csv
+  elif [ "$FORMAT" = "json" ]; then
+    mysql -h $remoteHost --port=$remotePort -u $remoteUser -p$remotePassword $dbName -e "SELECT $fields FROM \`$table\` WHERE $conditions" > /out/$dbName.$table.data.sql
+  else
+    echo "config error: 'FORMAT'"
+  fi
 }
 
 function dump() {
