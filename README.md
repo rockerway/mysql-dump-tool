@@ -25,7 +25,8 @@ using mysql-client in docker container to dump special table schema and data wit
 | env_file_name | env file name in config folder |
 | target_file_name | target file name in targets folder |
 | docker_network_name __(optional)__ | docker network name, if you need operate container in exist network, you can set it. |
+| docker_container_name __(optional)__ | docker container name that you want to link. |
 
 ```shell
-make run <env_file_name> <target_file_name> [docker_network_name]
+make run <env_file_name> <target_file_name> [docker_network_name] [docker_container_name]
 ```
